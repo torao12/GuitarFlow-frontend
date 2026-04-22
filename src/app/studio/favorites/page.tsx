@@ -1,63 +1,59 @@
 'use client';
-import React from 'react';
-import { Search, Play, Star } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, Loader2, Music2 } from 'lucide-react';
+import { guitarFlowApi } from '@/lib/api';
 
 export default function FavoritesPage() {
+  const [favorites, setFavorites] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadFavs = async () => {
+      try {
+        const res = await guitarFlowApi.listProgressions();
+        // Filtro flexible para detectar 'true', 1 o el campo isFavorite
+        const onlyFavs = res.data.filter((p: any) => 
+          p.isFavorite === true || p.isFavorite === 1 || p.favorite === true
+        );
+        setFavorites(onlyFavs);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadFavs();
+  }, []);
+
   return (
-    <div className="p-16 max-w-7xl mx-auto">
-      <header className="flex justify-between items-end mb-16">
-        <div>
-          <h1 className="text-5xl font-light text-white mb-3 tracking-tight">Favorites</h1>
-          <p className="text-zinc-500 text-sm">9 Saved Progressions & Creative Sketches</p>
-        </div>
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search saved..." 
-            className="bg-panel-bg border border-border-subtle rounded-full py-3 pl-12 pr-6 text-sm text-white focus:border-gold-accent outline-none w-80"
-          />
-        </div>
+    <div className="p-16 max-w-7xl mx-auto space-y-16 min-h-screen">
+      <header className="flex items-center gap-6 border-b border-zinc-800 pb-10">
+        <Star fill="#E5C07B" className="text-[#E5C07B]" size={32} />
+        <h1 className="text-7xl font-extralight text-white tracking-tighter italic">Vault.</h1>
       </header>
 
-      {/* Featured Session */}
-      <section className="mb-20">
-        <h3 className="text-[10px] tracking-[0.3em] text-zinc-500 uppercase mb-8 font-bold">Featured Session</h3>
-        <div className="bg-gradient-to-br from-[#1A1A1A] to-black border border-border-subtle rounded-[3rem] p-10 flex justify-between items-center group cursor-pointer hover:border-zinc-700 transition-all">
-          <div className="flex items-center gap-10">
-            <div className="w-20 h-20 bg-gold-accent rounded-[2rem] flex items-center justify-center shadow-[0_15px_30px_rgba(229,192,123,0.2)]">
-              <Star size={36} fill="black" stroke="black" />
-            </div>
-            <div>
-              <h4 className="text-3xl text-white font-medium mb-2">Midnight Jazz Drift</h4>
-              <p className="text-sm text-gold-accent font-semibold tracking-wide">Key: E Major • 85 BPM</p>
-              <div className="flex gap-4 mt-5">
-                 {['Ebmaj7', 'Abmaj7', 'Gm7'].map(c => (
-                   <span key={c} className="bg-black border border-border-subtle px-4 py-2 rounded-xl text-xs font-mono text-zinc-400">{c}</span>
-                 ))}
+      {isLoading ? (
+        <div className="flex justify-center py-40"><Loader2 className="animate-spin text-[#E5C07B]" size={40} /></div>
+      ) : favorites.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          {favorites.map((prog) => (
+            <div key={prog.progressionId} className="bg-zinc-900/40 border border-[#E5C07B]/20 rounded-[4rem] p-12">
+              <h3 className="text-4xl font-light text-white mb-4">{prog.workTitle}</h3>
+              <p className="text-[#E5C07B] text-[10px] font-black uppercase tracking-[0.4em] mb-6">{prog.keyName}</p>
+              <div className="flex gap-4">
+                {prog.chords.map((c: any, i: number) => (
+                  <span key={i} className="text-white/60 font-bold">{c.chordName}</span>
+                ))}
               </div>
             </div>
-          </div>
-          <button className="bg-gold-accent text-black px-10 py-4 rounded-full font-bold text-xs flex items-center gap-3 hover:scale-105 transition-all">
-            <Play size={18} fill="black" /> QUICK PLAY
-          </button>
+          ))}
         </div>
-      </section>
-
-      {/* Grid de categorías */}
-      <div className="grid grid-cols-3 gap-12">
-        {['Electronic', 'Acoustic', 'Soul'].map((cat) => (
-          <div key={cat}>
-            <h3 className="text-[10px] tracking-[0.3em] text-zinc-600 uppercase mb-8 font-bold border-b border-border-subtle pb-4">{cat}</h3>
-            <div className="space-y-4">
-              <div className="bg-panel-bg border border-border-subtle rounded-2xl p-6 hover:bg-zinc-900/50 cursor-pointer transition-all">
-                <h4 className="text-lg text-white mb-1">Arctic Ambient</h4>
-                <p className="text-xs text-zinc-600 uppercase tracking-widest font-bold">C Mixolydian • 110 BPM</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      ) : (
+        <div className="py-40 text-center flex flex-col items-center gap-6 opacity-20">
+          <Music2 size={64} />
+          <p className="text-zinc-500 uppercase tracking-[0.8em] font-black text-xs">Sin favoritos guardados</p>
+        </div>
+      )}
     </div>
   );
 }
