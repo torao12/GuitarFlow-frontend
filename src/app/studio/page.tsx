@@ -1,60 +1,73 @@
 'use client';
-import { Plus, Search, Clock, Star, Play } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { Plus, LayoutGrid, Star, ArrowRight, Music2, Clock } from 'lucide-react';
+import { guitarFlowApi } from '@/lib/api';
 
-export default function StudioDashboard() {
+export default function DashboardPage() {
+  const [stats, setStats] = useState({ total: 0, favs: 0 });
+
+  useEffect(() => {
+    guitarFlowApi.listProgressions().then(res => {
+      const favs = res.data.filter((p: any) => p.isFavorite || p.isFavorite === 1).length;
+      setStats({ total: res.data.length, favs });
+    }).catch(e => console.error(e));
+  }, []);
+
   return (
-    <div className="p-16 max-w-7xl mx-auto space-y-20">
-      {/* Hero Welcome */}
-      <header className="space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">
-        <h1 className="text-8xl font-extralight text-white tracking-tighter leading-none">
-          Welcome back, <br />
-          <span className="text-[#E5C07B] font-normal italic">Maestro.</span>
-        </h1>
-        <p className="text-zinc-500 max-w-lg text-2xl leading-relaxed">
-          Tu estudio en <span className="text-white font-bold">GuitarFlow</span> está calibrado. Explora nuevas texturas armónicas.
-        </p>
+    <div className="p-6 lg:p-16 max-w-7xl mx-auto space-y-8 lg:space-y-16">
+      <header className="space-y-2">
+        <h1 className="text-4xl lg:text-7xl font-extralight tracking-tighter italic">Studio Overview.</h1>
+        <p className="text-zinc-500 text-xs lg:text-sm uppercase tracking-[0.4em] font-black">Tu flujo creativo en AWS</p>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* Tarjeta Unificada: Builder */}
-          <Link href="/studio/builder" className="group bg-zinc-900/30 p-14 rounded-[4rem] border border-zinc-800/50 hover:border-[#E5C07B] transition-all duration-500">
-            <div className="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mb-12 border border-zinc-800 group-hover:border-[#E5C07B] transition-all">
-              <Plus className="text-[#E5C07B]" size={40} strokeWidth={3} />
-            </div>
-            <h3 className="text-4xl font-medium text-white mb-6">New Progression</h3>
-            <p className="text-zinc-500 text-lg leading-relaxed">Empieza una sesión desde cero con sugerencias armónicas inteligentes.</p>
-          </Link>
-        </div>
+      {/* ACCESOS DIRECTOS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10">
+        {/* Nueva Composición */}
+        <Link href="/studio/builder" className="group bg-[#E5C07B] p-8 lg:p-12 rounded-[3rem] text-black space-y-8 transition-transform hover:scale-[1.02]">
+          <Plus size={48} className="group-hover:rotate-90 transition-transform duration-500" />
+          <div>
+            <h3 className="text-3xl font-light italic leading-none mb-2">Crear Progresión</h3>
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Nuevo Workshop</p>
+          </div>
+        </Link>
 
-        {/* Panel de Estado del Estudio */}
-        <div className="bg-zinc-900/20 p-12 rounded-[4rem] border border-zinc-800/30 flex flex-col justify-between shadow-2xl">
-          <div className="space-y-12">
-            <div className="flex items-center gap-4">
-              <div className="w-3 h-3 bg-[#E5C07B] rounded-full animate-pulse shadow-[0_0_20px_#E5C07B]" />
-              <span className="text-[12px] uppercase tracking-[0.4em] text-zinc-500 font-bold">Studio Active</span>
-            </div>
-            <div className="space-y-4">
-              <div className="text-8xl font-light text-white tabular-nums tracking-tighter">11:42</div>
-              <p className="text-[12px] text-[#E5C07B] uppercase tracking-[0.3em] font-bold">Midnight Session</p>
-            </div>
-          </div>
-          
-          <div className="pt-12 border-t border-zinc-800/50 space-y-8">
-            <div className="flex items-center gap-3 text-zinc-500">
-              <Star size={18} />
-              <span className="text-[11px] uppercase font-bold tracking-[0.2em]">Featured Favorite</span>
-            </div>
+        {/* Acceso a Biblioteca (Reemplaza Scale-Finder) */}
+        <Link href="/studio/my-progressions" className="group bg-zinc-900 border border-zinc-800 p-8 lg:p-12 rounded-[3rem] space-y-8 transition-all hover:border-white">
+          <LayoutGrid size={48} className="text-[#E5C07B]" />
+          <div className="flex justify-between items-end">
             <div>
-              <h4 className="text-2xl text-white font-medium mb-4 italic">"Midnight Jazz Drift"</h4>
-              <button className="flex items-center gap-2 text-[#E5C07B] text-sm font-bold hover:gap-4 transition-all">
-                QUICK PLAY <Play size={14} fill="#E5C07B" />
-              </button>
+              <h3 className="text-3xl font-light italic leading-none mb-2">Biblioteca</h3>
+              <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Gestión de Obras</p>
             </div>
+            <ArrowRight className="text-zinc-700 group-hover:text-white group-hover:translate-x-2 transition-all" />
           </div>
-        </div>
+        </Link>
+
+        {/* Favoritos */}
+        <Link href="/studio/favorites" className="group bg-zinc-900 border border-zinc-800 p-8 lg:p-12 rounded-[3rem] space-y-8 transition-all hover:border-[#E5C07B]">
+          <Star size={48} className="text-[#E5C07B]" fill="#E5C07B" />
+          <div className="flex justify-between items-end">
+            <div>
+              <h3 className="text-3xl font-light italic leading-none mb-2">Vault</h3>
+              <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Tus Favoritos</p>
+            </div>
+            <span className="text-4xl font-extralight text-[#E5C07B]">{stats.favs}</span>
+          </div>
+        </Link>
       </div>
+
+      {/* MINI STATS */}
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-8 bg-zinc-900/30 border border-zinc-800/50 rounded-3xl text-center">
+          <p className="text-3xl font-light mb-1">{stats.total}</p>
+          <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Obras Totales</p>
+        </div>
+        <div className="p-8 bg-zinc-900/30 border border-zinc-800/50 rounded-3xl text-center">
+          <Clock size={20} className="mx-auto mb-2 text-zinc-700" />
+          <p className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Última Sesión: Hoy</p>
+        </div>
+      </section>
     </div>
   );
 }
