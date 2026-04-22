@@ -2,10 +2,18 @@
 import React from 'react';
 import Link from 'next/link';
 import { Home, Search, PenTool, Star, Plus, LogOut } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { guitarFlowApi } from '@/lib/api';
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    guitarFlowApi.auth.logout();
+    router.push('/');
+  };
+
   const menu = [
     { icon: <Home size={22} />, label: 'Home', href: '/studio' },
     { icon: <Search size={22} />, label: 'Scale Finder', href: '/studio/scale-finder' },
@@ -15,10 +23,9 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
 
   return (
     <div className="flex h-screen bg-[#0E0E0E] overflow-hidden">
-      {/* Sidebar - GuitarFlow Branding */}
       <aside className="w-80 border-r border-zinc-800/50 flex flex-col p-12 bg-[#0A0A0A] z-10">
-        <div className="mb-16">
-          <h1 className="text-white text-3xl font-bold tracking-[0.2em] leading-none">GUITARFLOW</h1>
+        <div className="mb-16 text-center lg:text-left">
+          <h1 className="text-white text-3xl font-bold tracking-[0.2em] leading-none uppercase">GUITARFLOW</h1>
           <p className="text-[#E5C07B] text-[10px] tracking-[0.4em] font-black uppercase mt-2">Studio Session</p>
         </div>
 
@@ -28,16 +35,15 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
               {item.icon} <span className="text-[15px] font-bold tracking-wide">{item.label}</span>
             </Link>
           ))}
-          <Link href="/studio/new-progression" className="flex items-center gap-5 px-6 py-4 mt-12 rounded-2xl bg-[#E5C07B] text-black font-bold text-sm hover:scale-[1.02] transition-all shadow-[0_20px_40px_rgba(229,192,123,0.2)]">
+          <Link href="/studio/builder" className="flex items-center gap-5 px-6 py-4 mt-12 rounded-2xl bg-[#E5C07B] text-black font-bold text-sm hover:scale-[1.02] transition-all">
             <Plus size={22} strokeWidth={3} /> New Progression
           </Link>
         </nav>
 
-        {/* Botón de Salida reemplazando Settings/Support */}
         <div className="pt-12 border-t border-zinc-800/50">
-          <Link href="/" className="flex items-center gap-5 px-6 py-4 text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-600 hover:text-red-400 transition-colors">
+          <button onClick={handleLogout} className="flex items-center gap-5 px-6 py-4 text-[12px] font-bold tracking-[0.2em] uppercase text-zinc-600 hover:text-red-400 transition-colors w-full text-left">
             <LogOut size={20} /> Cerrar Sesión
-          </Link>
+          </button>
         </div>
       </aside>
       <main className="flex-1 overflow-y-auto">{children}</main>
