@@ -10,20 +10,39 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('auth_token');
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
 
 export const guitarFlowApi = {
   auth: {
-    register: (data: any) => apiClient.post('/auth/register', {
-      full_name: data.fullName,
-      email: data.email,
-      password: data.password
-    }),
-    login: (creds: any) => apiClient.post('/auth/login', creds),
-    logout: () => localStorage.removeItem('auth_token'),
+    register: async (data: any) => {
+      const response = await apiClient.post('/auth/register', {
+        full_name: data.fullName,
+        email: data.email,
+        password: data.password
+      });
+      if (response.data.token) {
+        localStorage.setItem('auth_token', response.data.token);
+      }
+      return response.data;
+    },
+
+    // Login: captura y almacena el JWT
+    login: async (creds: any) => {
+      const response = await apiClient.post('/auth/login', creds);
+      if (response.data.token) {
+        localStorage.setItem('auth_token', response.data.token);
+      }
+      return response.data;
+    },
+
+    logout: () => {
+      localStorage.removeItem('auth_token');
+    }
   },
 
   getKeys: () => apiClient.get('/keys'),
