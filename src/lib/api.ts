@@ -1,11 +1,14 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://3.213.255.41:3000/api';
+const API_BASE_URL = 'https://api-guitar.readflow.lat/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
+
 
 apiClient.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
@@ -31,7 +34,6 @@ export const guitarFlowApi = {
       return response.data;
     },
 
-    // Login: captura y almacena el JWT
     login: async (creds: any) => {
       const response = await apiClient.post('/auth/login', creds);
       if (response.data.token) {
@@ -47,8 +49,10 @@ export const guitarFlowApi = {
 
   getKeys: () => apiClient.get('/keys'),
   getChordsByKey: (id: number) => apiClient.get(`/keys/${id}/chords`),
+
   listProgressions: () => apiClient.get('/progressions'),
   createProgression: (data: any) => apiClient.post('/progressions', data),
+
 
   transpose: (id: number, shift: number, newTitle: string) => 
     apiClient.post(`/progressions/${id}/transpose`, {
