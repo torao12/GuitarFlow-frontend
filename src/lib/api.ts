@@ -24,7 +24,7 @@ export const guitarFlowApi = {
   auth: {
     register: async (data: any) => {
       const response = await apiClient.post('/auth/register', {
-        full_name: data.fullName,
+        full_name: data.fullName, // Mapeo de UI a Backend
         email: data.email,
         password: data.password
       });
@@ -51,7 +51,9 @@ export const guitarFlowApi = {
   getChordsByKey: (id: number) => apiClient.get(`/keys/${id}/chords`),
 
   listProgressions: () => apiClient.get('/progressions'),
-  createProgression: (data: any) => apiClient.post('/progressions', data),
+  
+  createProgression: (data: { workTitle: string, baseKeyId: number, chordIds: number[] }) => 
+    apiClient.post('/progressions', data),
 
 
   transpose: (id: number, shift: number, newTitle: string) => 
@@ -60,6 +62,8 @@ export const guitarFlowApi = {
       newTitle: newTitle
     }),
 
+
   addFavorite: (id: number) => apiClient.post(`/favorites/${id}`),
+  
   removeFavorite: (id: number) => apiClient.delete(`/favorites/${id}`),
 };
